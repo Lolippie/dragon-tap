@@ -193,7 +193,7 @@ function renderMenu(items) {
     <article class="menu-card">
       <div class="menu-card-header">
         <span class="menu-name">${item.name}</span>
-        <span class="menu-price">${item.price}\u00a0d</span>
+        <span class="menu-price">${item.price}\u00a0<span class="dragor-icon"></span></span>
       </div>
       <div class="menu-meta">
         <span class="menu-category">${CATEGORY_LABELS[item.category] || item.category}</span>
@@ -363,7 +363,7 @@ async function goToStep3() {
     const items = await apiFetch(`/api/menu?category=${orderState.currentCategory}`);
     const grid = content.querySelector('.item-grid');
     grid.innerHTML = items.map(item =>
-      `<button class="item-btn" data-id="${item.id}" data-name="${encodeURIComponent(item.name)}">${item.name}<span class="item-price">${item.price}\u00a0d</span></button>`
+      `<button class="item-btn" data-id="${item.id}" data-name="${encodeURIComponent(item.name)}">${item.name}<span class="item-price">${item.price}\u00a0<span class="dragor-icon"></span></span></button>`
     ).join('');
     grid.querySelectorAll('.item-btn').forEach(btn => {
       btn.addEventListener('click', () => {

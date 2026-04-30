@@ -577,6 +577,16 @@ body {
   font-size: 12px;
 }
 
+.dragor-icon {
+  background-color: currentColor;
+  display: inline-block;
+  height: 1em;
+  -webkit-mask: url(dragor.svg) no-repeat center / contain;
+  mask: url(dragor.svg) no-repeat center / contain;
+  vertical-align: -0.15em;
+  width: 1em;
+}
+
 /* ── Step 4: Quantity ───────────────────────────────────────── */
 .qty-display {
   background: var(--bg-deep);
