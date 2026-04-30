@@ -1,0 +1,15 @@
+{
+  "name": "innkeeper",
+  "version": "1.0.0",
+  "description": "DragonTap API",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.0",
+    "pg": "^8.11.0",
+    "dotenv": "^16.4.0"
+  }
+}

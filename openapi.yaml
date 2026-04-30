@@ -1,0 +1,477 @@
+openapi: 3.0.3
+
+info:
+  title: DragonTap — Innkeeper API
+  description: |
+    API de gestion des commandes et du menu de l'Antre des 418 Dragons.
+    Toutes les routes sont préfixées par `/api`.
+  version: 1.0.0
+  contact:
+    name: DragonTap
+
+servers:
+  - url: http://localhost:4181
+    description: Développement local
+
+tags:
+  - name: Health
+    description: État de l'API et de ses dépendances
+  - name: Menu
+    description: Consultation de la carte de l'Antre
+  - name: Orders
+    description: Gestion des commandes
+
+paths:
+
+  # ─────────────────────────────────────────────
+  # HEALTH
+  # ─────────────────────────────────────────────
+
+  /api/health:
+    get:
+      tags: [Health]
+      summary: État de l'API
+      description: Vérifie que l'API répond et que la base de données est joignable.
+      operationId: getHealth
+      responses:
+        '200':
+          description: API opérationnelle
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthOk'
+              example:
+                status: ok
+                db: connected
+                timestamp: '2024-01-15T14:32:00.000Z'
+        '503':
+          description: Base de données injoignable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthError'
+              example:
+                status: error
+                db: unreachable
+
+  # ─────────────────────────────────────────────
+  # MENU
+  # ─────────────────────────────────────────────
+
+  /api/menu:
+    get:
+      tags: [Menu]
+      summary: Liste des items du menu
+      description: Retourne les 418 références de la carte. Filtrable par catégorie.
+      operationId: listMenuItems
+      parameters:
+        - name: category
+          in: query
+          required: false
+          description: Filtre par catégorie
+          schema:
+            $ref: '#/components/schemas/MenuCategory'
+      responses:
+        '200':
+          description: Liste des items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuItem'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/menu/{id}:
+    get:
+      tags: [Menu]
+      summary: Détail d'un item
+      operationId: getMenuItem
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Item trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItem'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ─────────────────────────────────────────────
+  # ORDERS
+  # ─────────────────────────────────────────────
+
+  /api/orders:
+    get:
+      tags: [Orders]
+      summary: Liste des commandes
+      description: Retourne toutes les commandes avec leurs items. Filtrable par statut.
+      operationId: listOrders
+      parameters:
+        - name: status
+          in: query
+          required: false
+          description: Filtre par statut
+          schema:
+            $ref: '#/components/schemas/OrderStatus'
+      responses:
+        '200':
+          description: Liste des commandes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+
+    post:
+      tags: [Orders]
+      summary: Créer une commande
+      description: Crée une nouvelle commande avec ses lignes. Le statut initial est toujours `pending`.
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+            example:
+              table_number: 9
+              items:
+                - menu_item_id: 12
+                  quantity: 1
+                  note: sans oignons
+                - menu_item_id: 47
+                  quantity: 2
+      responses:
+        '201':
+          description: Commande créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/orders/{id}:
+    get:
+      tags: [Orders]
+      summary: Détail d'une commande
+      operationId: getOrder
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Commande trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/orders/{id}/status:
+    patch:
+      tags: [Orders]
+      summary: Changer le statut d'une commande
+      description: |
+        Met à jour le statut d'une commande selon les transitions autorisées :
+
+        | Statut actuel | Transitions autorisées       |
+        |---------------|------------------------------|
+        | `pending`     | `preparing`, `cancelled`     |
+        | `preparing`   | `served`                     |
+        | `served`      | aucune                       |
+        | `cancelled`   | aucune                       |
+
+        Toute autre transition est rejetée avec `422`.
+      operationId: updateOrderStatus
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStatusRequest'
+            example:
+              status: preparing
+      responses:
+        '200':
+          description: Statut mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Transition de statut invalide
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidTransitionError'
+              example:
+                error: Invalid transition
+                current: served
+                requested: pending
+                allowed: []
+
+# ─────────────────────────────────────────────
+# COMPONENTS
+# ─────────────────────────────────────────────
+
+components:
+
+  # ── Parameters ────────────────────────────
+
+  parameters:
+    ResourceId:
+      name: id
+      in: path
+      required: true
+      description: Identifiant numérique de la ressource
+      schema:
+        type: integer
+        minimum: 1
+      example: 1
+
+  # ── Responses ─────────────────────────────
+
+  responses:
+    NotFound:
+      description: Ressource introuvable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: Not found
+
+    BadRequest:
+      description: Corps de requête invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorResponse'
+          example:
+            error: Validation failed
+            details:
+              - field: table_number
+                message: must be a positive integer
+              - field: items
+                message: must contain at least one item
+
+  # ── Schemas ───────────────────────────────
+
+  schemas:
+
+    # Health
+
+    HealthOk:
+      type: object
+      required: [status, db, timestamp]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        db:
+          type: string
+          enum: [connected]
+        timestamp:
+          type: string
+          format: date-time
+
+    HealthError:
+      type: object
+      required: [status, db]
+      properties:
+        status:
+          type: string
+          enum: [error]
+        db:
+          type: string
+          enum: [unreachable]
+
+    # Menu
+
+    MenuCategory:
+      type: string
+      enum:
+        - potions
+        - breuvages
+        - infusions_froides
+        - soupes_bouillons
+        - victuailles
+        - pains_viennoiseries
+        - fromages_affines
+        - desserts_douceurs
+
+    MenuItemType:
+      type: string
+      enum: [liquid, solid]
+
+    MenuItem:
+      type: object
+      required: [id, name, category, type, price, description]
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Potion de Clarté Mentale
+        category:
+          $ref: '#/components/schemas/MenuCategory'
+        type:
+          $ref: '#/components/schemas/MenuItemType'
+        price:
+          type: string
+          description: Prix en dragors, représenté comme une chaîne décimale
+          pattern: '^\d+\.\d{2}$'
+          example: '12.50'
+        description:
+          type: string
+          example: Un liquide translucide aux reflets bleutés qui aiguise l'esprit pour la nuit.
+
+    # Orders
+
+    OrderStatus:
+      type: string
+      enum: [pending, preparing, served, cancelled]
+
+    OrderItem:
+      type: object
+      required: [order_item_id, menu_item_id, name, quantity, unit_price]
+      properties:
+        order_item_id:
+          type: integer
+          example: 1
+        menu_item_id:
+          type: integer
+          example: 12
+        name:
+          type: string
+          example: Potion de Clarté Mentale
+        quantity:
+          type: integer
+          minimum: 1
+          example: 2
+        note:
+          type: string
+          nullable: true
+          example: sans oignons
+        unit_price:
+          type: string
+          description: Prix unitaire en dragors au moment de la commande
+          pattern: '^\d+\.\d{2}$'
+          example: '12.50'
+
+    Order:
+      type: object
+      required: [id, table_number, status, created_at, items]
+      properties:
+        id:
+          type: integer
+          example: 1
+        table_number:
+          type: integer
+          minimum: 1
+          example: 9
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        created_at:
+          type: string
+          format: date-time
+          example: '2024-01-15T14:00:00.000Z'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+
+    CreateOrderItemRequest:
+      type: object
+      required: [menu_item_id, quantity]
+      properties:
+        menu_item_id:
+          type: integer
+          minimum: 1
+          example: 12
+        quantity:
+          type: integer
+          minimum: 1
+          example: 2
+        note:
+          type: string
+          nullable: true
+          example: sans oignons
+
+    CreateOrderRequest:
+      type: object
+      required: [table_number, items]
+      properties:
+        table_number:
+          type: integer
+          minimum: 1
+          example: 9
+        items:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CreateOrderItemRequest'
+
+    UpdateStatusRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+
+    # Errors
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    ValidationErrorResponse:
+      type: object
+      required: [error, details]
+      properties:
+        error:
+          type: string
+          example: Validation failed
+        details:
+          type: array
+          items:
+            type: object
+            required: [field, message]
+            properties:
+              field:
+                type: string
+                example: table_number
+              message:
+                type: string
+                example: must be a positive integer
+
+    InvalidTransitionError:
+      type: object
+      required: [error, current, requested, allowed]
+      properties:
+        error:
+          type: string
+          example: Invalid transition
+        current:
+          $ref: '#/components/schemas/OrderStatus'
+        requested:
+          $ref: '#/components/schemas/OrderStatus'
+        allowed:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderStatus'
+          example: []
