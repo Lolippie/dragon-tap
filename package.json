@@ -1,0 +1,17 @@
+{
+  "name": "@digicrafters/dragon-tap",
+  "version": "1.0.0",
+  "description": "DragonTap API",
+  "homepage": "https://framagit.org/digicrafters/dragon-tap",
+  "private": true,
+  "license": "MIT",
+  "author": {
+    "name": "DigiCrafters - Nathaniel Vaur Henel",
+    "email": "contact@digicrafters.fr",
+    "url": "https://www.digicrafters.fr/"
+  },
+  "scripts": {
+    "board": "npx serve board/public -l 4182",
+    "validate": "node scripts/validate.js"
+  }
+}

@@ -1,6 +1,47 @@
 # DragonTap
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Projet pédagogique](https://img.shields.io/badge/usage-p%C3%A9dagogique-blue)](./README.md)
+[![Projet pédagogique](https://img.shields.io/badge/production-never-red)](./README.md)
+
 Application web de gestion des commandes de l'Antre des 418 Dragons — une auberge fantastique dont la carte compte exactement 418 références : potions, victuailles et breuvages des contrées lointaines.
+
+> ⚠️ **Projet pédagogique** — DragonTap est conçu comme support de formation pour pratiquer, entre autre, la conteneurisation d'une application full stack. Les choix techniques minimalistes sont intentionnels pour rester accessibles aux débutants. Ne pas utiliser en production.
+
+---
+
+## Prise en main rapide
+
+```bash
+# 1. Lancer la base de données
+docker run -d --name cellar \
+  -e POSTGRES_DB=dragontap -e POSTGRES_USER=dragontap -e POSTGRES_PASSWORD=dragontap \
+  -v $(pwd)/cellar/init.sql:/docker-entrypoint-initdb.d/init.sql \
+  -p 4183:5432 postgres:16-alpine
+
+# 2. Lancer l'API
+cd innkeeper && npm install
+DATABASE_URL=postgres://dragontap:dragontap@localhost:4183/dragontap PORT=4181 node src/index.js
+
+# 3. Lancer le frontend (depuis la racine)
+npx serve board/public -l 4182
+```
+
+- Frontend : http://localhost:4182
+- API : http://localhost:4181/api/health
+
+---
+
+## Objectif pédagogique
+
+DragonTap est une application full stack volontairement simple, prête à l'emploi, conçue pour être donnée aux étudiants telle quelle. L'objectif est de fournir une cible concrète et cohérente pour pratiquer :
+
+- L'écriture de `Dockerfile` pour chaque service
+- La gestion des volumes et de la persistance
+- La mise en réseau de conteneurs
+- L'orchestration multi-services
+
+L'application est intentionnellement fonctionnelle et complète pour que les étudiants se concentrent sur la conteneurisation, pas sur le code.
 
 ---
 
@@ -8,9 +49,9 @@ Application web de gestion des commandes de l'Antre des 418 Dragons — une aube
 
 | Service     | Rôle            | Port   | Techno                          |
 |-------------|-----------------|--------|---------------------------------|
-| `innkeeper` | API REST        | `4181` | Node.js LTS + Express 4         |
 | `board`     | Frontend SPA    | `4182` | HTML / CSS / JS vanilla + nginx |
 | `cellar`    | Base de données | `4183` | PostgreSQL 16                   |
+| `innkeeper` | API REST        | `4181` | NoWde.js LTS + Express 4        |
 
 ---
 
@@ -18,24 +59,19 @@ Application web de gestion des commandes de l'Antre des 418 Dragons — une aube
 
 ```
 dragontap/
-├── innkeeper/
-│   ├── src/
-│   │   ├── index.js
-│   │   ├── db.js
-│   │   └── routes/
-│   │       ├── health.js
-│   │       ├── menu.js
-│   │       └── orders.js
-│   ├── package.json
-│   └── package-lock.json
 ├── board/
 │   ├── public/
-│   │   ├── index.html
-│   │   ├── app.js
-│   │   └── style.css
+│   │   └── # fichiers du frontenbd 
 │   └── nginx.conf
 ├── cellar/
-│   └── init.sql
+│   └── init.sql # script d'initialisation de la base de données
+├── innkeeper/
+│   ├── src/
+│   │   └── # sources de l'API REST
+│   ├── package.json
+│   └── package-lock.json
+├── scripts/
+│   └── validate.js # script de validation d'installation
 └── openapi.yaml
 ```
 
@@ -124,12 +160,8 @@ NODE_ENV=production
 
 Le contrat complet est documenté dans [`openapi.yaml`](./openapi.yaml) (OpenAPI 3.0).
 
-Pour le visualiser localement :
-
-```bash
-npx @stoplight/elements-dev-portal
-# ou importer directement dans Insomnia / Postman
-```
+**Visualiser dans Swagger UI (sans rien installer) :**
+Ouvrir [editor.swagger.io](https://editor.swagger.io), puis `File → Import URL` ou coller le contenu de `openapi.yaml`.
 
 ### Résumé des routes
 
@@ -184,5 +216,32 @@ const API_URL = 'http://localhost:4181';
 ```
 
 **Fonctionnalités :**
-- Vue "Commandes" : tableau des commandes groupées par statut, avec boutons d'action (Préparer / Servir / Annuler)
+- Vue "Commandes" : tableau des commandes groupées par statut, avec prise de commande et boutons d'action (Préparer / Servir / Annuler)
 - Vue "La Carte" : liste des 418 références, filtrable par catégorie
+
+---
+
+## Liens
+
+- Repo Git : https://framagit.org/digicrafters/dragon-tap
+- Auteur : Nathaniel Vaur Henel https://framagit.org/nathvh/me
+
+---
+
+## Contributing
+
+Les contributions sont les bienvenues, notamment :
+
+- Corrections de bugs ou de typos
+- Amélioration du seed data (nouveaux items du menu)
+- Traductions de la carte en d'autres langues
+- Suggestions de variantes du projet (autre stack backend, etc.)
+
+Merci d'ouvrir une **issue** avant de soumettre une PR significative, pour en discuter au préalable.
+
+---
+
+## Licence
+
+Ce projet est distribué sous licence [MIT](./LICENSE).
+Vous êtes libre de l'utiliser, le modifier et le redistribuer, y compris dans un cadre commercial, à condition de conserver la mention de licence d'origine.
