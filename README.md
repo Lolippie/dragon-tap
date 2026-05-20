@@ -97,7 +97,7 @@ docker run -d \
   -e POSTGRES_DB=dragontap \
   -e POSTGRES_USER=dragontap \
   -e POSTGRES_PASSWORD=dragontap \
-  -v $(pwd)/cellar/init.sql:/docker-entrypoint-initdb.d/init.sql \
+  -v ./cellar/init.sql:/docker-entrypoint-initdb.d/init.sql \
   -p 4183:5432 \
   postgres:16-alpine
 ```

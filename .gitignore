@@ -2,4 +2,6 @@
 node_modules/
 *.iml
 Dockerfile
+.dockerignore
+docker-compose.yml
 /repomix-output.md
