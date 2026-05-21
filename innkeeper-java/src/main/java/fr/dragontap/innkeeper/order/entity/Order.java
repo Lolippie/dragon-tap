@@ -1,5 +1,6 @@
 package fr.dragontap.innkeeper.order.entity;
 
+import fr.dragontap.innkeeper.order.OrderStatusConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -24,7 +25,7 @@ public class Order {
     @Column(name = "table_number", nullable = false)
     private Integer tableNumber;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = OrderStatusConverter.class)
     @Column(name = "status", nullable = false, length = 20)
     private OrderStatus status;
 
