@@ -1,0 +1,63 @@
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  transition: border-color 0.2s;
+}
+
+.card:hover { border-color: #3a3a6a; }
+
+.cardHeader {
+  align-items: flex-start;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.name {
+  color: var(--text-primary);
+  flex: 1;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.4;
+}
+
+.price {
+  color: var(--accent-gold);
+  font-size: 14px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.dragorIcon {
+  background-color: currentColor;
+  display: inline-block;
+  height: 1em;
+  -webkit-mask: url('/dragor.svg') no-repeat center / contain;
+  mask: url('/dragor.svg') no-repeat center / contain;
+  vertical-align: -0.15em;
+  width: 1em;
+}
+
+.meta {
+  margin-bottom: 8px;
+}
+
+.category {
+  background: var(--bg-deep);
+  border-radius: 3px;
+  color: var(--text-muted);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  text-transform: uppercase;
+}
+
+.description {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.5;
+}

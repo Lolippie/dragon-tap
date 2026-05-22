@@ -1,0 +1,85 @@
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  padding: 16px;
+  transition: border-color 0.2s;
+}
+
+.card:hover { border-color: #3a3a6a; }
+
+.cardHeader {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.tableNumber {
+  color: var(--accent-gold-lt);
+  flex: 1;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.badge {
+  border-radius: 4px;
+  display: inline-block;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.06em;
+  padding: 3px 10px;
+  text-transform: uppercase;
+}
+
+.badgePending   { background: var(--badge-pending-bg);   color: var(--badge-pending-fg); }
+.badgePreparing { background: var(--badge-preparing-bg); color: var(--badge-preparing-fg); }
+.badgeServed    { background: var(--badge-served-bg);    color: var(--badge-served-fg); }
+.badgeCancelled { background: var(--badge-cancelled-bg); color: var(--badge-cancelled-fg); }
+
+.orderTime {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.itemList {
+  list-style: none;
+  margin-bottom: 4px;
+}
+
+.itemList li {
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 14px;
+  padding: 5px 0;
+}
+
+.itemList li:last-child { border-bottom: none; }
+.itemList em { color: var(--text-muted); font-style: italic; }
+
+.cardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.btn {
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 0.03em;
+  padding: 7px 16px;
+  transition: opacity 0.15s;
+}
+
+.btn:hover:not(:disabled) { opacity: 0.82; }
+.btn:disabled { cursor: not-allowed; opacity: 0.45; }
+
+.btnPrimary   { background: var(--accent-gold);   color: var(--bg-deep);  border-color: var(--accent-gold); }
+.btnSuccess   { background: #0a2e18; color: #40c070; border-color: #40c070; }
+.btnDanger    { background: #2e0a0a; color: #d05050; border-color: #d05050; }

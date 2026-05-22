@@ -1,0 +1,44 @@
+/* ── Variables ─────────────────────────────────────────────── */
+:root {
+  --bg-deep:         #0f0f1a;
+  --bg-main:         #1a1a2e;
+  --bg-card:         #16213e;
+  --border:          #2a2a4a;
+  --text-primary:    #e8e4d9;
+  --text-secondary:  #9d9888;
+  --text-muted:      #5a5870;
+  --accent-gold:     #c9a84c;
+  --accent-gold-lt:  #e8c56d;
+
+  --badge-pending-bg:   #3d2800;
+  --badge-pending-fg:   #f0a030;
+  --badge-preparing-bg: #051a3d;
+  --badge-preparing-fg: #4a9eff;
+  --badge-served-bg:    #062a16;
+  --badge-served-fg:    #40c070;
+  --badge-cancelled-bg: #222222;
+  --badge-cancelled-fg: #777777;
+}
+
+/* ── Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Base ──────────────────────────────────────────────────── */
+body {
+  background-color: var(--bg-main);
+  background-image: url('/background-dragon_tap.webp');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  color: var(--text-primary);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}

@@ -1,0 +1,52 @@
+.section {
+  margin-bottom: 36px;
+}
+
+.title {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.badge {
+  border-radius: 4px;
+  display: inline-block;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.06em;
+  padding: 3px 10px;
+  text-transform: uppercase;
+}
+
+.badgePending   { background: var(--badge-pending-bg);   color: var(--badge-pending-fg); }
+.badgePreparing { background: var(--badge-preparing-bg); color: var(--badge-preparing-fg); }
+.badgeServed    { background: var(--badge-served-bg);    color: var(--badge-served-fg); }
+.badgeCancelled { background: var(--badge-cancelled-bg); color: var(--badge-cancelled-fg); }
+
+.count {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+@media (min-width: 768px) {
+  .section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 16px;
+    align-items: start;
+  }
+  .title {
+    grid-column: 1 / -1;
+    margin-bottom: 4px;
+  }
+  .empty {
+    grid-column: 1 / -1;
+  }
+}

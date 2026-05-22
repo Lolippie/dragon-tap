@@ -28,9 +28,22 @@ cd innkeeper; $env:DATABASE_URL="postgres://dragontap:dragontap@localhost:4183/d
 cd innkeeper-java
 DATABASE_URL="jdbc:postgresql://localhost:4183/dragontap?user=dragontap&password=dragontap" \
   PORT=4181 java -jar target/innkeeper-1.0.0.jar
+cd innkeeper && npm install
+DATABASE_URL=postgres://dragontap:dragontap@localhost:4183/dragontap PORT=4181 node src/index.js
+
+# ── Variante Java (Spring Boot) ───────────────────────────────
+cd innkeeper-java
+DATABASE_URL="jdbc:postgresql://localhost:4183/dragontap?user=dragontap&password=dragontap" \
+  PORT=4181 java -jar target/innkeeper-1.0.0.jar
 
 # 3. Lancer le frontend (depuis la racine)
+# ── Variante Vanilla ─────────────────────────────────────────────
 npx serve board/public -l 4182
+
+# ── Frontend React (alternative) ────────────────────────────────
+cd board-react && npm install
+npm run dev
+# Disponible sur http://localhost:4182
 ```
 
 - Frontend : http://localhost:4182
@@ -56,6 +69,7 @@ L'application est intentionnellement fonctionnelle et complète pour que les ét
 | Service          | Rôle                | Port   | Techno                          |
 |------------------|---------------------|--------|---------------------------------|
 | `board`          | Frontend SPA        | `4182` | HTML / CSS / JS vanilla + nginx |
+| `board-react`    | Frontend SPA (React)| `4182` | React 18 + Vite + TypeScript    |
 | `cellar`         | Base de données     | `4183` | PostgreSQL 16                   |
 | `innkeeper`      | API REST (Node.js)  | `4181` | Node.js LTS + Express 4         |
 | `innkeeper-java` | API REST (Java)     | `4181` | Spring Boot 4 + Java 25         |
@@ -79,8 +93,13 @@ Les deux backends (`innkeeper` et `innkeeper-java`) sont interchangeables et exp
 dragontap/
 ├── board/
 │   ├── public/
-│   │   └── # fichiers du frontenbd 
+│   │   └── # fichiers du frontend
 │   └── nginx.conf
+├── board-react/
+│   ├── src/
+│   │   └── # sources React + TypeScript
+│   ├── .env.example
+│   └── vite.config.ts
 ├── cellar/
 │   └── init.sql # script d'initialisation de la base de données
 ├── innkeeper/
@@ -115,6 +134,7 @@ docker run -d \
   -e POSTGRES_DB=dragontap \
   -e POSTGRES_USER=dragontap \
   -e POSTGRES_PASSWORD=dragontap \
+  -v ./cellar/init.sql:/docker-entrypoint-initdb.d/init.sql \
   -p 4183:5432 \
   --network dragontap-net \
   -v cellar:/var/lib/postgresql/data \
@@ -221,6 +241,30 @@ order_items (id, order_id, menu_item_id, quantity, note)
 ### Seed data
 
 Le fichier `cellar/init.sql` contient le schéma complet, les 418 items du menu et 4 commandes initiales (une par statut).
+
+---
+
+## Frontend React
+
+`board-react` est une réécriture de `board` en React 18 + TypeScript + Vite.
+Fonctionnellement identique à la version vanilla, elle est destinée à servir
+de support alternatif pour des exercices orientés React ou TypeScript.
+
+L'URL de l'API est configurée via une variable d'environnement :
+
+```bash
+# board-react/.env
+VITE_API_URL=http://localhost:4181
+```
+
+**Lancement :**
+```bash
+cd board-react
+npm install
+npm run dev      # dev server sur http://localhost:4182
+npm run build    # build de production
+npm run test     # tests unitaires (Vitest + React Testing Library)
+```
 
 ---
 
