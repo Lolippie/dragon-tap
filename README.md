@@ -19,9 +19,15 @@ docker run -d --name cellar \
   -v $(pwd)/cellar/init.sql:/docker-entrypoint-initdb.d/init.sql \
   -p 4183:5432 postgres:16-alpine
 
-# 2. Lancer l'API
-cd innkeeper && npm install
-DATABASE_URL=postgres://dragontap:dragontap@localhost:4183/dragontap PORT=4181 node src/index.js
+# 2. Lancer l'API (choisir UNE des deux variantes ci-dessous)
+
+# ── Variante Node.js ─────────────────────────────────────────────
+cd innkeeper; $env:DATABASE_URL="postgres://dragontap:dragontap@localhost:4183/dragontap"; $env:PORT="4181"; node src/index.js
+
+# ── Variante Java (Spring Boot) ───────────────────────────────
+cd innkeeper-java
+DATABASE_URL="jdbc:postgresql://localhost:4183/dragontap?user=dragontap&password=dragontap" \
+  PORT=4181 java -jar target/innkeeper-1.0.0.jar
 
 # 3. Lancer le frontend (depuis la racine)
 npx serve board/public -l 4182
@@ -47,11 +53,23 @@ L'application est intentionnellement fonctionnelle et complète pour que les ét
 
 ## Architecture
 
-| Service     | Rôle            | Port   | Techno                          |
-|-------------|-----------------|--------|---------------------------------|
-| `board`     | Frontend SPA    | `4182` | HTML / CSS / JS vanilla + nginx |
-| `cellar`    | Base de données | `4183` | PostgreSQL 16                   |
-| `innkeeper` | API REST        | `4181` | NoWde.js LTS + Express 4        |
+| Service          | Rôle                | Port   | Techno                          |
+|------------------|---------------------|--------|---------------------------------|
+| `board`          | Frontend SPA        | `4182` | HTML / CSS / JS vanilla + nginx |
+| `cellar`         | Base de données     | `4183` | PostgreSQL 16                   |
+| `innkeeper`      | API REST (Node.js)  | `4181` | Node.js LTS + Express 4         |
+| `innkeeper-java` | API REST (Java)     | `4181` | Spring Boot 4 + Java 25         |
+
+---
+
+## Choisir son backend
+
+Les deux backends (`innkeeper` et `innkeeper-java`) sont interchangeables et exposent le même contrat d’API sur le port `4181`. Le frontend `board` appelle `http://localhost:4181` dans les deux cas, sans distinction.
+
+- **`innkeeper/`** — backend Node.js, recommandé pour les débutants ou les exercices orientés JavaScript
+- **`innkeeper-java/`** — backend Spring Boot, recommandé pour les exercices orientés Java ou JPA
+
+> Démarrer **un seul backend à la fois**.
 
 ---
 
@@ -97,8 +115,9 @@ docker run -d \
   -e POSTGRES_DB=dragontap \
   -e POSTGRES_USER=dragontap \
   -e POSTGRES_PASSWORD=dragontap \
-  -v $(pwd)/cellar/init.sql:/docker-entrypoint-initdb.d/init.sql \
   -p 4183:5432 \
+  --network dragontap-net \
+  -v cellar:/var/lib/postgresql/data \
   postgres:16-alpine
 ```
 

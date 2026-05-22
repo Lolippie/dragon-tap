@@ -3,3 +3,4 @@ node_modules/
 *.iml
 Dockerfile
 /repomix-output.md
+*.env
