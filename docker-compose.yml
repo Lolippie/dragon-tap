@@ -4,13 +4,18 @@ services:
     container_name: innkeeper
     environment:
       DATABASE_URL: postgres://dragontap:dragontap@cellar:5432/dragontap
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: dragontap
+      POSTGRES_USER: dragontap
+      NODE_ENV: production
     ports:  
       - "4181:4181"
     depends_on:
-      - cellar
+      cellar:
+        condition: service_healthy
     networks:
       - dragontap-net
-      
+
   cellar:
     image: postgres:16-alpine
     container_name: cellar
@@ -20,12 +25,18 @@ services:
       POSTGRES_PASSWORD: dragontap 
     ports: 
       - "4183:5432"
-    volumes :
-     - dragontapdata:/var/lib/postgresql/data 
+    volumes:
+      - dragontapdata:/var/lib/postgresql/data
+      - ./cellar:/docker-entrypoint-initdb.d
     networks:
       - dragontap-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dragontap -d dragontap"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   board: 
-    build: ./board
+    build: ./board-react
     container_name: board
     ports:  
       - "4182:4182"
@@ -33,8 +44,12 @@ services:
       - innkeeper
     networks:
       - dragontap-net
+    restart: on-failure
 
 volumes:
   dragontapdata:
+
 networks:
-  - dragontap-net:
+  dragontap-net:
+    driver: bridge
+
