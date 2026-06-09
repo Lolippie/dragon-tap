@@ -22,6 +22,12 @@ docker run -d --name cellar \
 # 2. Lancer l'API (choisir UNE des deux variantes ci-dessous)
 
 # ── Variante Node.js ─────────────────────────────────────────────
+cd innkeeper; $env:DATABASE_URL="postgres://dragontap:dragontap@localhost:4183/dragontap"; $env:PORT="4181"; node src/index.js
+
+# ── Variante Java (Spring Boot) ───────────────────────────────
+cd innkeeper-java
+DATABASE_URL="jdbc:postgresql://localhost:4183/dragontap?user=dragontap&password=dragontap" \
+  PORT=4181 java -jar target/innkeeper-1.0.0.jar
 cd innkeeper && npm install
 DATABASE_URL=postgres://dragontap:dragontap@localhost:4183/dragontap PORT=4181 node src/index.js
 
@@ -130,6 +136,8 @@ docker run -d \
   -e POSTGRES_PASSWORD=dragontap \
   -v ./cellar/init.sql:/docker-entrypoint-initdb.d/init.sql \
   -p 4183:5432 \
+  --network dragontap-net \
+  -v cellar:/var/lib/postgresql/data \
   postgres:16-alpine
 ```
 
