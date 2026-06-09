@@ -1,10 +1,10 @@
 package fr.dragontap.innkeeper.order;
 
+import java.util.Locale;
+
 import fr.dragontap.innkeeper.order.entity.OrderStatus;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-
-import java.util.Locale;
 
 @Converter(autoApply = true)
 public class OrderStatusConverter implements AttributeConverter<OrderStatus, String> {

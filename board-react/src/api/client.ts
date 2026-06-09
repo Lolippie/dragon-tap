@@ -1,9 +1,8 @@
 import type { MenuItem, Order, OrderStatus, MenuCategory, CreateOrderPayload } from '../types';
 
-const API_URL = import.meta.env.VITE_API_URL as string;
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(API_URL + path, {
+  const res = await fetch( path, {
     headers: { 'Content-Type': 'application/json' },
     ...options,
   });

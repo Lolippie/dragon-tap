@@ -1,15 +1,13 @@
 services:
   innkeeper:
-    build: ./innkeeper
+    build: ./innkeeper-java
     container_name: innkeeper
     environment:
-      DATABASE_URL: postgres://dragontap:dragontap@cellar:5432/dragontap
-      POSTGRES_DB: postgres
-      POSTGRES_PASSWORD: dragontap
-      POSTGRES_USER: dragontap
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       NODE_ENV: production
-    ports:  
-      - "4181:4181"
     depends_on:
       cellar:
         condition: service_healthy
@@ -20,14 +18,14 @@ services:
     image: postgres:16-alpine
     container_name: cellar
     environment: 
-      POSTGRES_DB: dragontap 
-      POSTGRES_USER: dragontap 
-      POSTGRES_PASSWORD: dragontap 
+      POSTGRES_DB: ${POSTGRES_DB} 
+      POSTGRES_USER: ${POSTGRES_USER} 
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} 
     ports: 
       - "4183:5432"
     volumes:
-      - dragontapdata:/var/lib/postgresql/data
-      - ./cellar:/docker-entrypoint-initdb.d
+      - pgdata:/var/lib/postgresql/data
+      - ./cellar/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - dragontap-net
     healthcheck:
@@ -38,16 +36,27 @@ services:
   board: 
     build: ./board-react
     container_name: board
-    ports:  
-      - "4182:4182"
     depends_on:
       - innkeeper
     networks:
       - dragontap-net
     restart: on-failure
 
+  gatekeeper:
+    image: nginx:alpine
+    container_name: gatekeeper
+    ports:
+      - "80:80"
+    volumes:
+      - ./gatekeeper/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - board
+      - innkeeper
+    networks:
+      - dragontap-net
+
 volumes:
-  dragontapdata:
+  pgdata:
 
 networks:
   dragontap-net:
