@@ -5,7 +5,7 @@ node_modules/
 /innkeeper-java/target/*
 dist/
 
-
+Dockerfile
 .dockerignore
 docker-compose.yml
 
